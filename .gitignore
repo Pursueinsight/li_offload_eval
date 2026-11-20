@@ -16,3 +16,11 @@ __pycache__/
 .vscode/
 .idea/
 *.swp
+
+# 编译中间产物与临时测试数据
+*.o
+*.obj
+*.so
+*.a
+*.log
+tmp/

@@ -123,7 +123,7 @@ padding Query输出全-1。TopK行数为sum(aq)*N2，64个head先合并为一行
 | native/cpu_li.cpp | BF16数组、PA表、长度、工作区参数 | 原生并行Score+TopK，ABI=3；Score 含 SVE2 BF16(`svbfdot_f32`) / SME(`svmopa_za32_f32_m`，编译期选择) / simd / blas 后端 |
 | native/histogram.hpp | sortable uint32键、字节、私有缓冲 | HISTSEG/标量256-bin统计 |
 | native/li_aclnn_bench.cpp | 原li_a2_meta和.f32/.i32输入 | 现有ACLNN两段式LI调用、完整输出、结构检查 |
-| scripts/build_cpu.sh | --scalar/--sme/--blas、编译环境变量 | build/libli_cpu.so；默认 -march=armv9-a+sve2+bf16（SVE2 打分），--sme 改为 -march=armv9-a+sve2+bf16+sme 并定义 LI_SCORE_USE_SME |
+| scripts/build_cpu.sh | --scalar/--sme/--blas、编译环境变量 | build/libli_cpu.so；默认 -march=armv9-a+sve2+bf16（SVE2 打分），--sme 改为 -march=armv9-a+sve2+bf16+sme 并定义 LI_SCORE_USE_SME；未指定 CXX 时自动选择支持 SME 的编译器 |
 | scripts/build_ca.sh | 用户确认的CANN路径 | build/li_aclnn_bench |
 | CPU_LI_Algorithm_and_Parallel_Design.md | — | CPU 路径算法/精度/并行实现详解 |
 | run_cases.sh | 已生成的 cases/ | 8 个 preset × 核数 × SMT 全量扫描，并汇总 results/_chart_summary.csv |
@@ -290,7 +290,8 @@ bash scripts/build_cpu.sh --scalar         # 非SVE构建，运行时须加 --hi
 ```
 
 SVE 与 SME 是编译期选择，不能在同一构建内并存。切换后需重新编译，并让 `--library`/`build/libli_cpu.so` 指向新库；SME 构建在运行时使用 `--score-backend sme`（也可用兼容名 `svebf16`，实际执行 SME）。
-```
+
+`--sme` 自动探测可用编译器：未显式设置 `CXX` 时先用 `g++`，若其不支持 SME ACLE（例如 GCC 12/13 会忽略 `arm_locally_streaming`/`arm_new("za")` 属性）则依次尝试 `clang++`/`g++-14` 等，并打印实际使用的编译器。显式 `CXX` 不支持时报错退出而不是静默产出错误构建。
 
 目标 ARM 机推荐运行配置（svebf16 后端、多 NUMA 绑核、ACTIVE 等待策略）：
 
@@ -689,7 +690,7 @@ decode_64k 单 NUMA 扫描（`results/cpu_decode_64k_smt`，`--smt`，线程数=
 | scalar构建请求HISTSEG | 加--hist scalar或重新SVE2编译 |
 | 请求svebf16报错 -8 | 用SVE2构建（`-march=armv9-a+sve2+bf16`），并确认 H%8==0、D%2==0 |
 | 请求sme报错 -9 | 当前库未编入SME；执行 `bash scripts/build_cpu.sh --sme` 后重试 |
-| SME构建编译失败 | 编译器需支持SME ACLE（GCC 14+/Clang 16+）且 `-march` 含 `+sme`；目标机需实际支持SME |
+| SME构建编译失败 | 编译器需支持SME ACLE（GCC 14+/Clang 16+）且 `-march` 含 `+sme`；`--sme` 会自动改用可用的 clang++/g++-14；目标机需实际支持SME |
 | H不是8的倍数，svebf16/sme实际跑的是simd | 该情况静默降级；改用 H=8/16/32/64 或接受降级 |
 | 某工作线程VL非256 | 看worker_vl_bits，检查线程VL设置 |
 | 48核不可用 | 看cpuset/父进程affinity/offline CPU；scanner不越过已有资源限制 |

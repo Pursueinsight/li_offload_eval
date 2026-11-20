@@ -25,11 +25,13 @@
 // Locally streaming: the kernel can be called from ordinary OpenMP workers and
 // the compiler emits the required SMSTART/SMSTOP for the ZA tile.
 #if defined(__clang__)
+// Clang 16+ implements the ACLE SME keywords, not the attribute spellings.
+#define LI_ARM_STREAMING __arm_locally_streaming
+#define LI_ARM_NEW_ZA __arm_new("za")
+#else
+// GCC 14+ implements the SME attributes; GCC <= 13 has no usable SME support.
 #define LI_ARM_STREAMING __attribute__((arm_locally_streaming))
 #define LI_ARM_NEW_ZA __attribute__((arm_new("za")))
-#else
-#define LI_ARM_STREAMING __attribute__((arm_locally_streaming))
-#define LI_ARM_NEW_ZA __attribute__((arm_new_za))
 #endif
 #endif
 
@@ -411,9 +413,10 @@ static void score_sme_8keys(const float* qT,const float* kblk,const float* W,
         svfloat32_t acc=svdup_f32(0.f);
         const float* Wr=W+row*H+h0;
         for(int i=0;i<nw;++i) {
-            svfloat32_t r=svread_hor_za32_f32_m(svundef_f32(),0,uint32_t(i));
+            svfloat32_t r=svread_hor_za32_f32_m(svundef_f32(),pg,0,uint32_t(i));
             r=svmaxnm_f32_z(pg,r,svdup_f32(0.f));
-            acc=svmla_f32_x(pg,acc,r,svdup_f32(Wr[i]));
+            // svmla is not streaming-compatible; use mul+add to stay defined.
+            acc=svadd_f32_x(pg,acc,svmul_f32_x(pg,r,svdup_f32(Wr[i])));
         }
         svfloat32_t o=svld1_f32(pg,out8);
         svst1_f32(pg,out8,svadd_f32_x(pg,o,acc));
