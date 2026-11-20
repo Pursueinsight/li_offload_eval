@@ -1,0 +1,9 @@
+{
+  "confirmed": false,
+  "scope": "single_complete_li_critical_path",
+  "frequency_mhz": 1650.0,
+  "clock_domain": "TO_BE_VERIFIED",
+  "evidence": "Replace with evidence that this Total tick record covers one complete LI critical path and uses this clock domain. cube_freq alone is insufficient.",
+  "source_revision": "Record actual kernel/source revision, not just master URL",
+  "output_order": "unverified"
+}

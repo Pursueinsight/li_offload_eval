@@ -1,0 +1,10 @@
+export LD_LIBRARY_PATH=/home/p00951281/topk/models:/home/Ascend/cann-9.2.0/aarch64-linux/simulator/Ascend950PR_9589/lib:/home/Ascend/cann-9.2.0/aarch64-linux/lib64:$LD_LIBRARY_PATH
+export PYTHONPATH=/home/Ascend/cann-9.2.0/python/site-packages:/home/Ascend/cann-9.2.0/opp/built-in/op_impl/ai_core/tbe:$PYTHONPATH
+export PATH=/home/Ascend/cann-9.2.0/bin:/home/Ascend/cann-9.2.0/tools/ccec_compiler/bin:$PATH
+export ASCEND_OPP_PATH=/home/Ascend/cann-9.2.0/opp
+export ASCEND_AICPU_PATH=/home/Ascend/cann-9.2.0
+export ASCEND_TOOLKIT_HOME=/home/Ascend/cann-9.2.0
+export ASCEND_HOME_PATH=/home/Ascend/cann-9.2.0
+export BISHENG_REAL_PATH=/home/Ascend/cann-9.2.0/tools/ccec_compiler/bin/bisheng
+export ASCEND_GLOBAL_LOG_LEVEL=3
+export ASCEND_SLOG_PRINT_TO_STDOUT=1

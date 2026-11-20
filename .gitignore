@@ -1,0 +1,18 @@
+# 构建产物（scripts/build_*.sh 可重新生成）
+build/
+
+# 生成的 case 输入（generate_case.py / import_case.py 可重新生成，单个 case 可达数十 MB）
+cases/
+
+# run_cases.sh 的全量扫描中间结果；results/ 下按 case 的 scan.json/summary.csv 保留为文档证据
+results/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# 编辑器/IDE
+.vscode/
+.idea/
+*.swp

@@ -1,0 +1,4 @@
+LI Offload Evaluation Project 2.2
+Native CPU ABI: 3
+Date: 2026-11-19
+Primary target: ARM SVE2 VL=256 or SME (compile-time selectable score kernel), 48 physical cores / 96 SMT threads per NUMA node, 4 NUMA nodes / 192 physical cores total; CANN 9.2.0 Ascend950PR_9589 CA model.
